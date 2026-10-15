@@ -1,0 +1,223 @@
+import type { ClassStatistics, Student } from '../types/student';
+
+export const mockStudents: Student[] = [
+  {
+    id: 's-101',
+    studentId: '210097010001',
+    name: 'Aarav Sharma',
+    email: 'aarav.sharma@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 62,
+    studyHoursPerWeek: 4,
+    pastFailures: 2,
+    parentalEducation: 'Secondary',
+    internetAccess: true,
+    assignmentCompletionRate: 58,
+    midterm1Score: 8,
+    midterm2Score: 7,
+    predictedFinalScore: 8.4,
+    riskLevel: 'High Risk',
+    riskProbability: 86,
+    topRiskFactors: ['Low Class Attendance (62%)', 'Prior Course Backlogs (2)', 'Declining Quiz Scores'],
+    recommendations: ['Mandatory remedial sessions for Data Structures', 'Weekly academic counselor check-in', 'Attendance recovery plan'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 9, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 12, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 8, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 7, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  },
+  {
+    id: 's-102',
+    studentId: '210097010014',
+    name: 'Ananya Verma',
+    email: 'ananya.verma@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 94,
+    studyHoursPerWeek: 16,
+    pastFailures: 0,
+    parentalEducation: 'Higher',
+    internetAccess: true,
+    assignmentCompletionRate: 98,
+    midterm1Score: 18,
+    midterm2Score: 19,
+    predictedFinalScore: 18.8,
+    riskLevel: 'Low Risk',
+    riskProbability: 4,
+    topRiskFactors: ['None - High consistent engagement'],
+    recommendations: ['Nominate for Peer Mentorship program', 'Encourage honors track research capstone'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 19, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 20, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 18, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 19, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  },
+  {
+    id: 's-103',
+    studentId: '210097010029',
+    name: 'Rohan Gupta',
+    email: 'rohan.gupta@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 74,
+    studyHoursPerWeek: 8,
+    pastFailures: 1,
+    parentalEducation: 'Secondary',
+    internetAccess: true,
+    assignmentCompletionRate: 72,
+    midterm1Score: 11,
+    midterm2Score: 12,
+    predictedFinalScore: 11.8,
+    riskLevel: 'Medium Risk',
+    riskProbability: 48,
+    topRiskFactors: ['Borderline Attendance (74%)', 'Low assignment turnaround rate'],
+    recommendations: ['Encourage group study hours', 'Monitor upcoming lab submission deliverables'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 12, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 14, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 11, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 12, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  },
+  {
+    id: 's-104',
+    studentId: '210097010042',
+    name: 'Priya Nair',
+    email: 'priya.nair@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 88,
+    studyHoursPerWeek: 12,
+    pastFailures: 0,
+    parentalEducation: 'Higher',
+    internetAccess: true,
+    assignmentCompletionRate: 90,
+    midterm1Score: 16,
+    midterm2Score: 15,
+    predictedFinalScore: 16.2,
+    riskLevel: 'Low Risk',
+    riskProbability: 12,
+    topRiskFactors: ['Slight dip in Midterm 2'],
+    recommendations: ['Provide advanced algorithmic problem sets for exam prep'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 17, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 18, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 16, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 15, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  },
+  {
+    id: 's-105',
+    studentId: '210097010055',
+    name: 'Kabir Patel',
+    email: 'kabir.patel@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 55,
+    studyHoursPerWeek: 3,
+    pastFailures: 3,
+    parentalEducation: 'Primary',
+    internetAccess: false,
+    assignmentCompletionRate: 40,
+    midterm1Score: 6,
+    midterm2Score: 5,
+    predictedFinalScore: 6.1,
+    riskLevel: 'High Risk',
+    riskProbability: 92,
+    topRiskFactors: ['Critical Attendance Deficit (55%)', '3 Prior Year Failures', 'Limited internet connectivity'],
+    recommendations: ['Urgent faculty advisor intervention', 'Offline study materials and lab access allocation'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 6, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 8, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 6, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 5, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  },
+  {
+    id: 's-106',
+    studentId: '210097010068',
+    name: 'Sneha Kulkarni',
+    email: 'sneha.k@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 81,
+    studyHoursPerWeek: 10,
+    pastFailures: 0,
+    parentalEducation: 'Higher',
+    assignmentCompletionRate: 85,
+    internetAccess: true,
+    midterm1Score: 14,
+    midterm2Score: 14,
+    predictedFinalScore: 14.5,
+    riskLevel: 'Low Risk',
+    riskProbability: 18,
+    topRiskFactors: ['Stable performance, no major risk'],
+    recommendations: ['Support preparation for competitive technical placement exams'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 14, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 15, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 14, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 14, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  },
+  {
+    id: 's-107',
+    studentId: '210097010077',
+    name: 'Vikramaditya Rao',
+    email: 'vikram.rao@gcet.edu.in',
+    department: 'Computer Science & Engineering',
+    semester: 7,
+    attendanceRate: 68,
+    studyHoursPerWeek: 6,
+    pastFailures: 1,
+    parentalEducation: 'Secondary',
+    internetAccess: true,
+    assignmentCompletionRate: 65,
+    midterm1Score: 10,
+    midterm2Score: 9,
+    predictedFinalScore: 9.7,
+    riskLevel: 'High Risk',
+    riskProbability: 71,
+    topRiskFactors: ['Drop in Midterm 2', 'Below 70% Attendance threshold'],
+    recommendations: ['Conduct 1-on-1 concept review for Unit 3 and 4'],
+    recentAssessments: [
+      { id: 'a1', name: 'Quiz 1: Algo Analysis', score: 10, maxScore: 20, weight: 10, date: '2026-08-15' },
+      { id: 'a2', name: 'Assignment 1: Sorting', score: 11, maxScore: 20, weight: 15, date: '2026-08-28' },
+      { id: 'a3', name: 'Midterm G1', score: 10, maxScore: 20, weight: 25, date: '2026-09-12' },
+      { id: 'a4', name: 'Midterm G2', score: 9, maxScore: 20, weight: 25, date: '2026-09-29' }
+    ]
+  }
+];
+
+export const mockClassStatistics: ClassStatistics = {
+  totalStudents: 68,
+  highRiskCount: 14,
+  mediumRiskCount: 22,
+  lowRiskCount: 32,
+  averageAttendance: 79.4,
+  averagePredictedScore: 13.2,
+  gradeDistribution: [
+    { range: 'Fail (<10)', count: 14 },
+    { range: 'Pass (10-12)', count: 18 },
+    { range: 'Good (13-15)', count: 20 },
+    { range: 'Very Good (16-17)', count: 11 },
+    { range: 'Excellent (18-20)', count: 5 }
+  ],
+  riskTrends: [
+    { week: 'Wk 1-2', highRisk: 18, mediumRisk: 25, lowRisk: 25 },
+    { week: 'Wk 3-4', highRisk: 16, mediumRisk: 24, lowRisk: 28 },
+    { week: 'Wk 5-6 (G1)', highRisk: 15, mediumRisk: 23, lowRisk: 30 },
+    { week: 'Wk 7-8 (G2)', highRisk: 14, mediumRisk: 22, lowRisk: 32 }
+  ],
+  featureCorrelations: [
+    { feature: 'G2 Midterm Grade', correlation: 0.88 },
+    { feature: 'G1 Midterm Grade', correlation: 0.81 },
+    { feature: 'Attendance Rate', correlation: 0.64 },
+    { feature: 'Weekly Study Hours', correlation: 0.52 },
+    { feature: 'Assignment Completion', correlation: 0.49 },
+    { feature: 'Past Failures (Inverse)', correlation: -0.61 }
+  ]
+};
