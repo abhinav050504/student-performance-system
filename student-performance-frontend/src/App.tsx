@@ -7,7 +7,7 @@ import { PredictionSimulator } from './components/PredictionSimulator';
 import { ModelInsights } from './components/ModelInsights';
 import { DataDictionaryView } from './components/DataDictionaryView';
 import { AddStudentModal } from './components/AddStudentModal';
-import { AuthModal } from './components/AuthModal';
+import { AuthPage } from './components/AuthPage';
 import { mockStudents } from './data/mockData';
 import type { Student } from './types/student';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -16,8 +16,7 @@ export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: string } | null>(() => {
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: string; student_id?: string | null } | null>(() => {
     try {
       const saved = localStorage.getItem('edupredict_user');
       return saved ? JSON.parse(saved) : null;
@@ -96,7 +95,6 @@ export const App: React.FC = () => {
           setCurrentTab(tab);
         }} 
         currentUser={currentUser}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
         onLogout={() => {
           localStorage.removeItem('edupredict_token');
           localStorage.removeItem('edupredict_user');
@@ -158,6 +156,15 @@ export const App: React.FC = () => {
                 {currentTab === 'predictor' && <PredictionSimulator />}
                 {currentTab === 'insights' && <ModelInsights />}
                 {currentTab === 'data-dictionary' && <DataDictionaryView />}
+                {currentTab === 'auth' && (
+                  <AuthPage 
+                    onLoginSuccess={(user) => {
+                      setCurrentUser(user);
+                      setCurrentTab('dashboard');
+                    }}
+                    onGoToDashboard={() => setCurrentTab('dashboard')}
+                  />
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -169,13 +176,6 @@ export const App: React.FC = () => {
             onStudentAdded={(newStudent) => {
               setStudents(prev => [newStudent, ...prev]);
             }}
-          />
-
-          {/* Faculty Authentication / Registration Modal */}
-          <AuthModal
-            isOpen={isAuthModalOpen}
-            onClose={() => setIsAuthModalOpen(false)}
-            onLoginSuccess={(user) => setCurrentUser(user)}
           />
         </div>
       </main>

@@ -8,17 +8,15 @@ import {
   Sparkles,
   Zap,
   ShieldCheck,
-  LogIn,
-  LogOut,
-  UserCheck
+  UserCheck,
+  UserPlus
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SidebarProps {
   currentTab: string;
   onTabChange: (tab: string) => void;
-  currentUser: { name: string; email: string; role: string } | null;
-  onOpenAuth: () => void;
+  currentUser: { name: string; email: string; role: string; student_id?: string | null } | null;
   onLogout: () => void;
 }
 
@@ -26,7 +24,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentTab, 
   onTabChange, 
   currentUser, 
-  onOpenAuth, 
   onLogout 
 }) => {
   const navItems = [
@@ -35,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'predictor', label: 'What-If Simulator', icon: Calculator, badge: 'ML' },
     { id: 'insights', label: 'Model Benchmarks', icon: BrainCircuit, badge: '5 Models' },
     { id: 'data-dictionary', label: 'SQL & Dictionary', icon: Database, badge: 'DDL' },
+    { id: 'auth', label: currentUser ? 'My Account' : 'Sign In / Register', icon: UserPlus, badge: currentUser ? 'Active' : 'Auth' },
   ];
 
   return (
@@ -72,24 +70,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="truncate text-left">
                 <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
-                <p className="text-[10px] text-indigo-300 font-medium">{currentUser.role}</p>
+                <p className="text-[10px] text-indigo-300 font-medium">
+                  {currentUser.role} {currentUser.student_id ? `(${currentUser.student_id})` : ''}
+                </p>
               </div>
             </div>
             <button
               onClick={onLogout}
-              title="Sign Out"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0 ml-1"
+              className="text-[10px] font-bold text-slate-400 hover:text-rose-400 px-2 py-1 rounded-md bg-white/[0.03] hover:bg-rose-500/10 transition-colors shrink-0 ml-1"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              Logout
             </button>
           </div>
         ) : (
           <button
-            onClick={onOpenAuth}
+            onClick={() => onTabChange('auth')}
             className="w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-bold text-slate-200 transition-all hover:scale-[1.02]"
           >
-            <LogIn className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Faculty Sign In</span>
+            <UserPlus className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Sign In or Sign Up</span>
           </button>
         )}
       </div>
