@@ -6,7 +6,9 @@ import {
   User, 
   ArrowRight, 
   ShieldCheck, 
-  AlertCircle
+  AlertCircle,
+  GraduationCap,
+  Briefcase
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -14,12 +16,14 @@ import confetti from 'canvas-confetti';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (user: { name: string; email: string; role: string }) => void;
+  onLoginSuccess: (user: { name: string; email: string; role: string; account_type?: string; student_id?: string | null }) => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [accountType, setAccountType] = useState<'student' | 'faculty'>('student');
   const [fullName, setFullName] = useState('');
+  const [studentId, setStudentId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('Faculty Member');
@@ -40,7 +44,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
       const payload = isLoginMode 
         ? { email: email.trim(), password }
-        : { full_name: fullName.trim(), email: email.trim(), password, role };
+        : { 
+            full_name: fullName.trim(), 
+            email: email.trim(), 
+            password, 
+            account_type: accountType,
+            role: accountType === 'student' ? 'Student' : role,
+            student_id: accountType === 'student' ? studentId.trim() : ''
+          };
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -50,7 +61,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
       if (res.ok) {
         const data = await res.json();
-        // Save access token
         localStorage.setItem('edupredict_token', data.access_token);
         localStorage.setItem('edupredict_user', JSON.stringify(data.user));
 
@@ -64,14 +74,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
         onClose();
       } else {
         const err = await res.json();
-        setErrorMsg(err.detail || 'Authentication failed. Please check credentials.');
+        setErrorMsg(err.detail || 'Authentication failed. Please verify credentials.');
       }
     } catch {
       // Offline fallback mock demo login
       const mockUser = {
-        name: isLoginMode ? 'Faculty Member' : fullName || 'Academic Lead',
-        email: email || 'faculty@gcet.edu.in',
-        role: role
+        name: isLoginMode ? (accountType === 'student' ? 'Student Account' : 'Faculty Member') : fullName || 'Aarav Sharma',
+        email: email || (accountType === 'student' ? 'student@gcet.edu.in' : 'faculty@gcet.edu.in'),
+        role: accountType === 'student' ? 'Student' : role,
+        account_type: accountType,
+        student_id: accountType === 'student' ? (studentId || '210097010001') : null
       };
       localStorage.setItem('edupredict_user', JSON.stringify(mockUser));
       onLoginSuccess(mockUser);
@@ -100,13 +112,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
               <Sparkles className="w-6 h-6" />
             </div>
             <h3 className="text-2xl font-black text-white tracking-tight">
-              {isLoginMode ? 'Faculty Sign In' : 'Create Faculty Account'}
+              {isLoginMode ? 'Access Portal' : 'Create Account'}
             </h3>
             <p className="text-xs text-slate-400 mt-1">
               {isLoginMode 
                 ? 'Sign in to access student predictive intelligence' 
-                : 'Register as an instructor or departmental administrator'}
+                : 'Register as a Student or Faculty Member'}
             </p>
+          </div>
+
+          {/* Account Type Selector (Student vs Faculty) */}
+          <div className="mt-5 p-1 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center relative z-10">
+            <button
+              type="button"
+              onClick={() => { setAccountType('student'); setErrorMsg(''); }}
+              className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-xl text-xs font-bold transition-all ${
+                accountType === 'student'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>Student</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setAccountType('faculty'); setErrorMsg(''); }}
+              className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-xl text-xs font-bold transition-all ${
+                accountType === 'faculty'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>Faculty</span>
+            </button>
           </div>
 
           {/* Error Message */}
@@ -118,32 +158,51 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4 relative z-10">
+          <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 relative z-10">
             {!isLoginMode && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">Full Name</label>
-                <div className="relative">
-                  <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Prof. Vipin Kumar"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-indigo-500"
-                  />
+              <>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-300">Full Name</label>
+                  <div className="relative">
+                    <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      required
+                      placeholder={accountType === 'student' ? "Aarav Sharma" : "Prof. Vipin Kumar"}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
                 </div>
-              </div>
+
+                {accountType === 'student' && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-300">University Roll Number</label>
+                    <div className="relative">
+                      <GraduationCap className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="210097010001"
+                        value={studentId}
+                        onChange={(e) => setStudentId(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-slate-400 text-xs font-mono focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-xs font-bold text-slate-300">Institutional Email</label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
                   required
-                  placeholder="vipin.kumar@gcet.edu.in"
+                  placeholder={accountType === 'student' ? "student@gcet.edu.in" : "faculty@gcet.edu.in"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-indigo-500"
@@ -151,7 +210,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-xs font-bold text-slate-300">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -166,15 +225,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
               </div>
             </div>
 
-            {!isLoginMode && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">Academic Role</label>
+            {!isLoginMode && accountType === 'faculty' && (
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-300">Department Role</label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
-                  <option value="Faculty Member">Faculty Member / Instructor</option>
+                  <option value="Faculty Member">Faculty Member / Subject Teacher</option>
                   <option value="Department Lead">Departmental Lead / HOD</option>
                   <option value="Academic Counselor">Academic Counselor / Mentor</option>
                 </select>
@@ -185,9 +244,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center space-x-2"
+              className="w-full mt-3 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center space-x-2"
             >
-              <span>{isLoginMode ? 'Sign In to Dashboard' : 'Complete Registration'}</span>
+              <span>{isLoginMode ? `Sign In as ${accountType === 'student' ? 'Student' : 'Faculty'}` : `Complete ${accountType === 'student' ? 'Student' : 'Faculty'} Sign Up`}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -196,7 +255,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           <div className="mt-5 text-center text-xs text-slate-400 relative z-10">
             {isLoginMode ? (
               <span>
-                Need an instructor account?{' '}
+                Don't have an account yet?{' '}
                 <button
                   type="button"
                   onClick={() => { setIsLoginMode(false); setErrorMsg(''); }}
@@ -219,9 +278,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             )}
           </div>
 
-          <div className="mt-6 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400 relative z-10">
+          <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400 relative z-10">
             <span className="flex items-center"><ShieldCheck className="w-3.5 h-3.5 text-emerald-400 mr-1" /> Encrypted Session</span>
-            <button onClick={onClose} className="hover:text-slate-300">Cancel</button>
+            <button onClick={onClose} className="hover:text-slate-300">Close</button>
           </div>
         </motion.div>
       </div>

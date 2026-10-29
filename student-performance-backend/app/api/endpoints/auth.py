@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import jwt
 import hashlib
+import json
 
 from app.core.database import get_db
-from app.db.models import UserModel
+from app.db.models import UserModel, StudentModel, AcademicRecordModel, PredictionLogModel
+from app.ml.model_service import score_student
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -18,7 +20,9 @@ class RegisterRequest(BaseModel):
     full_name: str
     email: str
     password: str
+    account_type: str = "faculty" # "faculty" or "student"
     role: str = "Faculty Member"
+    student_id: str = "" # Required if student
 
 class LoginRequest(BaseModel):
     email: str
@@ -51,21 +55,69 @@ def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
             detail="An account with this email address already exists"
         )
 
+    # 1. Create User Authentication Record
+    assigned_role = "Student" if payload.account_type == "student" else payload.role
     user = UserModel(
         full_name=payload.full_name,
         email=payload.email,
         password_hash=hash_password(payload.password),
-        role=payload.role
+        role=assigned_role
     )
     db.add(user)
     db.commit()
     db.refresh(user)
 
+    # 2. If registering as student, link or register student profile & baseline records
+    student_record_id = payload.student_id.strip() if payload.student_id else f"STU-{user.id:04d}"
+    if payload.account_type == "student":
+        existing_student = db.query(StudentModel).filter(StudentModel.email == payload.email).first()
+        if not existing_student:
+            new_student = StudentModel(
+                student_id=student_record_id,
+                name=payload.full_name,
+                email=payload.email,
+                department="Computer Science & Engineering",
+                semester=7,
+                parental_education="Secondary",
+                internet_access=True
+            )
+            db.add(new_student)
+            db.commit()
+
+            # Add default initial academic record
+            rec = AcademicRecordModel(
+                student_id=student_record_id,
+                attendance_rate=80.0,
+                study_hours_per_week=8.0,
+                past_failures=0,
+                assignment_rate=85.0,
+                midterm1_score=12.0,
+                midterm2_score=13.0
+            )
+            db.add(rec)
+            db.commit()
+
+            # Compute initial ML prediction
+            score, risk, prob, drivers, recs = score_student(12.0, 13.0, 80.0, 8.0, 0, 85.0)
+            pred = PredictionLogModel(
+                student_id=student_record_id,
+                model_version="RandomForest_v1.0",
+                predicted_final_score=score,
+                risk_level=risk,
+                risk_probability=prob,
+                top_risk_factors=json.dumps(drivers),
+                recommendations=json.dumps(recs)
+            )
+            db.add(pred)
+            db.commit()
+
     user_info = {
         "id": user.id,
         "name": user.full_name,
         "email": user.email,
-        "role": user.role
+        "role": user.role,
+        "account_type": payload.account_type,
+        "student_id": student_record_id if payload.account_type == "student" else None
     }
 
     token = create_access_token(user_info)
@@ -85,11 +137,16 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid email or password credentials"
         )
 
+    # Check if student
+    student_entry = db.query(StudentModel).filter(StudentModel.email == user.email).first()
+
     user_info = {
         "id": user.id,
         "name": user.full_name,
         "email": user.email,
-        "role": user.role
+        "role": user.role,
+        "account_type": "student" if user.role == "Student" else "faculty",
+        "student_id": student_entry.student_id if student_entry else None
     }
 
     token = create_access_token(user_info)
