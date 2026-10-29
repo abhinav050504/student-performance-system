@@ -7,16 +7,28 @@ import {
   Database, 
   Sparkles,
   Zap,
-  ShieldCheck
+  ShieldCheck,
+  LogIn,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SidebarProps {
   currentTab: string;
   onTabChange: (tab: string) => void;
+  currentUser: { name: string; email: string; role: string } | null;
+  onOpenAuth: () => void;
+  onLogout: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  currentTab, 
+  onTabChange, 
+  currentUser, 
+  onOpenAuth, 
+  onLogout 
+}) => {
   const navItems = [
     { id: 'dashboard', label: 'Overview Dashboard', icon: LayoutDashboard, badge: 'Live' },
     { id: 'students', label: 'Student Directory', icon: Users, badge: 'DB' },
@@ -50,8 +62,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
         </div>
       </div>
 
+      {/* User Status Bar */}
+      <div className="px-5 py-3 border-b border-white/5 relative z-10 flex items-center justify-between bg-white/[0.01]">
+        {currentUser ? (
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-2.5 truncate">
+              <div className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+                <UserCheck className="w-3.5 h-3.5" />
+              </div>
+              <div className="truncate text-left">
+                <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
+                <p className="text-[10px] text-indigo-300 font-medium">{currentUser.role}</p>
+              </div>
+            </div>
+            <button
+              onClick={onLogout}
+              title="Sign Out"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0 ml-1"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onOpenAuth}
+            className="w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-bold text-slate-200 transition-all hover:scale-[1.02]"
+          >
+            <LogIn className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Faculty Sign In</span>
+          </button>
+        )}
+      </div>
+
       {/* Nav Menu */}
-      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto relative z-10">
+      <nav className="flex-1 px-4 py-5 space-y-1.5 overflow-y-auto relative z-10">
         <div className="px-3 pb-2 text-[10px] font-bold tracking-widest uppercase text-slate-400">
           Navigation Modules
         </div>
@@ -69,7 +113,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
                   : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }`}
             >
-              {/* Active sliding background pill */}
               {isActive && (
                 <motion.div
                   layoutId="activeSidebarIndicator"
