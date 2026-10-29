@@ -6,7 +6,8 @@ import {
   CheckCircle, 
   Clock, 
   ChevronRight,
-  Users
+  Users,
+  UserPlus
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Student, RiskLevel } from '../types/student';
@@ -14,9 +15,10 @@ import type { Student, RiskLevel } from '../types/student';
 interface StudentListProps {
   students: Student[];
   onSelectStudent: (student: Student) => void;
+  onOpenAddModal?: () => void;
 }
 
-export const StudentList: React.FC<StudentListProps> = ({ students, onSelectStudent }) => {
+export const StudentList: React.FC<StudentListProps> = ({ students, onSelectStudent, onOpenAddModal }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState<'All' | RiskLevel>('All');
   const [sortBy, setSortBy] = useState<'name' | 'attendance' | 'predicted' | 'risk'>('risk');
@@ -113,6 +115,18 @@ export const StudentList: React.FC<StudentListProps> = ({ students, onSelectStud
               <option value="name">Alphabetical</option>
             </select>
           </div>
+
+          {onOpenAddModal && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onOpenAddModal}
+              className="inline-flex items-center text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 px-4 py-2 rounded-xl shadow-lg shadow-indigo-500/25 transition-all ml-2"
+            >
+              <UserPlus className="w-3.5 h-3.5 mr-1.5" />
+              Enroll Student
+            </motion.button>
+          )}
         </div>
       </div>
 

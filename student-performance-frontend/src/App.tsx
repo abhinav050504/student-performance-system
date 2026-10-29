@@ -6,6 +6,7 @@ import { StudentProfileModal } from './components/StudentProfileModal';
 import { PredictionSimulator } from './components/PredictionSimulator';
 import { ModelInsights } from './components/ModelInsights';
 import { DataDictionaryView } from './components/DataDictionaryView';
+import { AddStudentModal } from './components/AddStudentModal';
 import { mockStudents } from './data/mockData';
 import type { Student } from './types/student';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -13,6 +14,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [students, setStudents] = useState<Student[]>(mockStudents);
   const [isLiveBackend, setIsLiveBackend] = useState<boolean>(false);
 
@@ -133,6 +135,7 @@ export const App: React.FC = () => {
                   <StudentList 
                     students={students} 
                     onSelectStudent={handleSelectStudent} 
+                    onOpenAddModal={() => setIsAddModalOpen(true)}
                   />
                 )}
                 {currentTab === 'predictor' && <PredictionSimulator />}
@@ -141,6 +144,15 @@ export const App: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Add Student Registration Modal */}
+          <AddStudentModal
+            isOpen={isAddModalOpen}
+            onClose={() => setIsAddModalOpen(false)}
+            onStudentAdded={(newStudent) => {
+              setStudents(prev => [newStudent, ...prev]);
+            }}
+          />
         </div>
       </main>
     </div>
