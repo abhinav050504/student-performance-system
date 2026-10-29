@@ -8,6 +8,7 @@ import { ModelInsights } from './components/ModelInsights';
 import { DataDictionaryView } from './components/DataDictionaryView';
 import { mockStudents } from './data/mockData';
 import type { Student } from './types/student';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
@@ -22,7 +23,6 @@ export const App: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
-            // Map backend schema to frontend model
             const mapped: Student[] = data.map((d: any) => ({
               id: `s-${d.id}`,
               studentId: d.student_id,
@@ -71,8 +71,12 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 font-sans text-slate-900">
-      {/* Permanent Sidebar Navigation */}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#070b14] font-sans text-slate-100 relative selection:bg-indigo-500/30 selection:text-indigo-200">
+      {/* Background Ambient Glowing Orbs */}
+      <div className="fixed top-[-10%] left-[-5%] w-[45vw] h-[45vw] rounded-full bg-gradient-to-br from-indigo-600/15 to-purple-600/5 blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-tl from-purple-600/15 to-pink-600/5 blur-[120px] pointer-events-none" />
+
+      {/* Permanent Sleek Sidebar */}
       <Sidebar 
         currentTab={currentTab} 
         onTabChange={(tab) => {
@@ -82,43 +86,61 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* View Routing */}
-        <div className="p-8 max-w-7xl w-full mx-auto pb-16">
-          <div className="flex justify-end mb-4">
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
-              isLiveBackend 
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                : 'bg-slate-100 text-slate-600 border-slate-200'
-            }`}>
-              <span className={`w-2 h-2 rounded-full mr-2 ${isLiveBackend ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-              {isLiveBackend ? 'FastAPI & SQLite Database Connected' : 'Offline Mock Fallback'}
-            </span>
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative z-10">
+        <div className="p-8 max-w-7xl w-full mx-auto pb-20">
+          {/* Header pill indicator */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <span>AI Learning Analytics System</span>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <span className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
+                isLiveBackend 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25 glow-emerald' 
+                  : 'bg-white/[0.04] text-slate-400 border-white/10'
+              }`}>
+                <span className={`w-2 h-2 rounded-full mr-2 ${isLiveBackend ? 'bg-emerald-400 animate-ping' : 'bg-slate-400'}`} />
+                {isLiveBackend ? 'FastAPI & SQLite Database Connected' : 'Offline Mock Fallback'}
+              </span>
+            </div>
           </div>
-          {selectedStudent ? (
-            <StudentProfileModal 
-              student={selectedStudent} 
-              onBack={handleBackFromProfile} 
-            />
-          ) : (
-            <>
-              {currentTab === 'dashboard' && (
-                <DashboardOverview 
-                  onSelectStudent={handleSelectStudent}
-                  onNavigateToStudents={() => setCurrentTab('students')}
-                />
-              )}
-              {currentTab === 'students' && (
-                <StudentList 
-                  students={students} 
-                  onSelectStudent={handleSelectStudent} 
-                />
-              )}
-              {currentTab === 'predictor' && <PredictionSimulator />}
-              {currentTab === 'insights' && <ModelInsights />}
-              {currentTab === 'data-dictionary' && <DataDictionaryView />}
-            </>
-          )}
+
+          {/* View Routing with smooth fluid fade transitions */}
+          <AnimatePresence mode="wait">
+            {selectedStudent ? (
+              <StudentProfileModal 
+                key="student-modal"
+                student={selectedStudent} 
+                onBack={handleBackFromProfile} 
+              />
+            ) : (
+              <motion.div
+                key={currentTab}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25 }}
+              >
+                {currentTab === 'dashboard' && (
+                  <DashboardOverview 
+                    onSelectStudent={handleSelectStudent}
+                    onNavigateToStudents={() => setCurrentTab('students')}
+                  />
+                )}
+                {currentTab === 'students' && (
+                  <StudentList 
+                    students={students} 
+                    onSelectStudent={handleSelectStudent} 
+                  />
+                )}
+                {currentTab === 'predictor' && <PredictionSimulator />}
+                {currentTab === 'insights' && <ModelInsights />}
+                {currentTab === 'data-dictionary' && <DataDictionaryView />}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
     </div>
